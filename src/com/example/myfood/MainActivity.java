@@ -34,28 +34,28 @@ import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.adapter.articleAdapter;
-import com.example.jsonservices.jsonarticle;
-import com.example.model.article;
+import com.example.adapter.ArticleAdapter;
+import com.example.jsonservices.ArticleJSON;
+import com.example.model.Article;
 import com.example.myfood.R.color;
-import com.example.utils.myapplication;
+import com.example.utils.MyApplication;
 import com.iflytek.speech.RecognizerResult;
 import com.iflytek.speech.SpeechError;
 import com.iflytek.ui.RecognizerDialog;
 import com.iflytek.ui.RecognizerDialogListener;
 
 public class MainActivity extends Activity {
-	private myapplication myapplication1;
+	private MyApplication myapplication1;
 	private ProgressDialog ProgressDialog1; // 加载对话框
 	private ListView listview1;
-	private articleAdapter adapter;
+	private ArticleAdapter adapter;
 	private int page = 1;
 	private long waitTime = 2000;
 	private long touchTime = 0;
 	private TextView textView;
 	private ImageButton ImageButton1;// 语音
 	private ImageButton ImageButton2;// 语音
-	private List<article> list1 = null;
+	private List<Article> list1 = null;
 	private List<HashMap<String, Object>> articleslist = new ArrayList<HashMap<String, Object>>();
 
 	private String textString = "";
@@ -65,7 +65,7 @@ public class MainActivity extends Activity {
 	private ImageButton yuyinButton;
 	private RelativeLayout rela;
 
-	private List<article> Articles;
+	private List<Article> Articles;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -77,15 +77,15 @@ public class MainActivity extends Activity {
 																		// detectable
 																		// problems
 				.penaltyLog().build());
-		StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-				.detectLeakedSqlLiteObjects().detectLeakedClosableObjects()
-				.penaltyLog().penaltyDeath().build());
+//		StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+//				.detectLeakedSqlLiteObjects().detectLeakedClosableObjects()
+//				.penaltyLog().penaltyDeath().build());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		myapplication1 = (myapplication) getApplication();
+		myapplication1 = (MyApplication) getApplication();
 		myapplication1.getInstance().addActivity(this);
 		rela = (RelativeLayout) findViewById(R.id.rlay);
-		listview1 = (ListView) findViewById(R.id.mlistView1);
+//		listview1 = (ListView) findViewById(R.id.mlistView1);
 		textView = (TextView) findViewById(R.id.textView2);
 		ImageButton1 = (ImageButton) findViewById(R.id.xunfeiimageButton1);
 		ImageButton2 = (ImageButton) findViewById(R.id.systemimageButton1);
@@ -93,11 +93,11 @@ public class MainActivity extends Activity {
 		tabhost.setup();
 
 		TabWidget tabwidget = tabhost.getTabWidget();
-		tabhost.addTab(tabhost.newTabSpec("tab1").setIndicator("活动信息")
+		tabhost.addTab(tabhost.newTabSpec("tab1").setIndicator("App Info")
 				.setContent(R.id.tab1));
-		tabhost.addTab(tabhost.newTabSpec("tab2").setIndicator("餐厅预订")
+		tabhost.addTab(tabhost.newTabSpec("tab2").setIndicator("Restaurant")
 				.setContent(R.id.tab2));
-		tabhost.addTab(tabhost.newTabSpec("tab3").setIndicator("个人信息")
+		tabhost.addTab(tabhost.newTabSpec("tab3").setIndicator("User Profile")
 				.setContent(R.id.tab3));
 
 		textView.setOnClickListener(new OnClickListener() {
@@ -113,16 +113,16 @@ public class MainActivity extends Activity {
 				yuyinButton = (ImageButton) LinearLayout1
 						.findViewById(R.searchdialog.imageButton1);
 				new AlertDialog.Builder(MainActivity.this)
-						.setTitle("请输入查询关键字")
+						.setTitle("Please input key words")
 						.setIcon(android.R.drawable.ic_dialog_info)
 						.setView(LinearLayout1)
-						.setPositiveButton("取消", null)
-						.setNegativeButton("确定",
+						.setPositiveButton("Cancel", null)
+						.setNegativeButton("Confirm",
 								new DialogInterface.OnClickListener() {
 									@Override
 									public void onClick(DialogInterface arg0,
 											int arg1) {
-										// 数据获取
+										// Obtain Data
 										searchtext(setedit.getText().toString());
 									}
 								}).show();
@@ -150,6 +150,9 @@ public class MainActivity extends Activity {
 				startActivity(intent);
 				overridePendingTransition(android.R.anim.slide_in_left,
 						android.R.anim.slide_out_right);
+//				Intent settingsActivity = new Intent(getBaseContext(), SettingsActivity.class);
+//				startActivity(settingsActivity);
+//				return true;
 			}
 		});
 
@@ -196,217 +199,6 @@ public class MainActivity extends Activity {
 		return myapplication1.getlocalhost();
 	}
 
-	public void bindarticle() {
-		threadstart();
-		listview1.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-					long arg3) {
-				// TODO Auto-generated method stub
-				Intent Intent1 = new Intent();
-				Intent1.setClass(MainActivity.this, ArticleActivity.class);
-				Bundle Bundle1 = new Bundle();
-				Bundle1.putString("_id", articleslist.get(arg2).get("id")
-						.toString());
-				Bundle1.putString("_title", articleslist.get(arg2).get("title")
-						.toString());
-				Bundle1.putString("_img_url",
-						articleslist.get(arg2).get("img_url").toString());
-				Bundle1.putString("_content",
-						articleslist.get(arg2).get("content").toString());
-				Bundle1.putString("_add_time",
-						articleslist.get(arg2).get("add_time").toString());
-				Intent1.putExtras(Bundle1);
-				startActivity(Intent1);
-				overridePendingTransition(R.anim.in_from_right,
-						R.anim.out_to_left);
-			}
-		});
-
-		listview1.setOnScrollListener(new OnScrollListener() {
-
-			@Override
-			public void onScroll(AbsListView arg0, int arg1, int arg2, int arg3) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void onScrollStateChanged(AbsListView view, int scrollState) {
-				// TODO Auto-generated method stub
-				// 当不滚动时
-				if (scrollState == OnScrollListener.SCROLL_STATE_IDLE) {
-					// 判断是否滚动到底部
-					if (view.getLastVisiblePosition() == view.getCount() - 1) {
-						if (havedata) {
-							threadmore();
-						}
-					}
-				}
-				switch (scrollState) {
-				case OnScrollListener.SCROLL_STATE_FLING:
-					adapter.setFlagBusy(true);
-					break;
-				case OnScrollListener.SCROLL_STATE_IDLE:
-					adapter.setFlagBusy(false);
-					break;
-				case OnScrollListener.SCROLL_STATE_TOUCH_SCROLL:
-					adapter.setFlagBusy(false);
-					break;
-				default:
-					break;
-				}
-				adapter.notifyDataSetChanged();
-			}
-		});
-	}
-
-	/***
-	 * 配套使用加载读取
-	 */
-	public void threadstart() {
-		ProgressDialog1 = new ProgressDialog(this);
-		ProgressDialog1.setMessage("数据加载中，请稍后...");
-		ProgressDialog1.show();
-		Thread1 = new Thread() {
-
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				try {
-					Thread1.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				Handler1.sendEmptyMessage(0);
-			}
-		};
-		Thread1.start();
-	}
-
-	private Handler Handler1 = new Handler() {
-		public void handleMessage(Message msg) {
-			try {
-				list1 = loaddata(page);
-				bindlist(list1);
-				adapter = new articleAdapter(MainActivity.this, list1);
-				adapter.addlist(list1);
-				listview1.setAdapter(adapter);
-				ProgressDialog1.dismiss();
-			} catch (Exception e) {
-				e.printStackTrace();
-				ProgressDialog1.dismiss();
-				Toast.makeText(MainActivity.this, e.toString(), 1).show();
-				neterror();// 网络重试
-			}
-		}
-	};
-
-	/***
-	 * 加载更多
-	 */
-	public void threadmore() {
-		ProgressDialog1 = new ProgressDialog(this);
-		ProgressDialog1.setMessage("数据加载中，请稍后...");
-		ProgressDialog1.show();
-		Thread1 = new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				try {
-					Thread1.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				Handler2.sendEmptyMessage(0);
-			}
-		});
-		Thread1.start();
-	}
-
-	private Handler Handler2 = new Handler() {
-		public void handleMessage(Message msg) {
-			try {
-				list1 = loaddata(page += 1);
-				bindlist(list1);
-				adapter.addlist(list1);
-				adapter.notifyDataSetChanged();
-				ProgressDialog1.dismiss();
-			} catch (Exception e) {
-				e.printStackTrace();
-				ProgressDialog1.dismiss();
-
-			}
-		}
-	};
-
-	/**
-	 * 活动新闻绑定
-	 * 
-	 * @param list
-	 */
-	public void bindlist(List<article> list) {
-		for (article articles : list) {
-			HashMap<String, Object> item = new HashMap<String, Object>();
-			item.put("title", articles.get_title());
-			item.put("id", articles.get_id());
-			item.put("zhaiyao", articles.get_zhaiyao());
-			item.put("img_url", articles.get_img_url());
-			item.put("content", articles.get_content());
-			item.put("add_time", articles.get_add_time());
-			articleslist.add(item);
-		}
-
-	}
-
-	/**
-	 * 网络重试
-	 */
-	public void neterror() {
-
-		final LinearLayout linearLayout = (LinearLayout) getLayoutInflater()
-				.inflate(R.layout.networkerror, null);
-		linearLayout.setLayoutParams(new LinearLayout.LayoutParams(
-				LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-		rela.addView(linearLayout);
-
-		linearLayout.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				rela.removeView(linearLayout);
-				threadstart();
-			}
-		});
-	}
-
-	/***
-	 * 读取文件流
-	 * 
-	 * @param page
-	 * @return
-	 */
-	public List<article> loaddata(int page) {
-
-		try {
-			Articles = jsonarticle.getjsonlastarticles(
-
-			myapplication1.getlocalhost()
-					+ "/android/json_article/list.aspx?channel_id=1&page="
-					+ page);
-		} catch (Exception e) {
-			e.printStackTrace();
-
-			Articles = new ArrayList<article>();
-			Toast.makeText(MainActivity.this, "全部显示完毕！", 1).show();
-			havedata = false;
-		}
-		return Articles;
-	}
-
 	/**
 	 * 退出系统
 	 */
@@ -416,7 +208,7 @@ public class MainActivity extends Activity {
 				&& KeyEvent.KEYCODE_BACK == keyCode) {
 			long currentTime = System.currentTimeMillis();
 			if ((currentTime - touchTime) >= waitTime) {
-				Toast.makeText(this, "再按一次退出", Toast.LENGTH_SHORT).show();
+				Toast.makeText(this, "Press again to Exit", Toast.LENGTH_SHORT).show();
 				touchTime = currentTime;
 			} else {
 				myapplication1.getInstance().exit();
@@ -450,7 +242,8 @@ public class MainActivity extends Activity {
 				setedit.setText(textString.substring(0, textString.length() - 1));
 			}
 		});
-		return recognizerDialog;
+//		return recognizerDialog;
+		return null;
 	}
 
 	/***
@@ -463,14 +256,14 @@ public class MainActivity extends Activity {
 			Intent Intent1 = new Intent();
 			Intent1.setClass(MainActivity.this, DiquActivity.class);
 			startActivity(Intent1);
-			Toast.makeText(MainActivity.this, "请先选择店铺地址", 1).show();
+			Toast.makeText(MainActivity.this, "Please choose Restaurant Address", 1).show();
 		} else {
 			myapplication1
 					.setgoodsurl("/android/json_goods/list.aspx?channel_id=2&keywords='"
 							+ java.net.URLEncoder.encode(text) + "'&page=");
 
 			Intent Intent1 = new Intent();
-			Intent1.setClass(MainActivity.this, DiancaiActivity.class);
+			Intent1.setClass(MainActivity.this, MenuActivity.class);
 			Bundle Bundle1 = new Bundle();
 			Bundle1.putString("tg", "0");
 			Intent1.putExtras(Bundle1);

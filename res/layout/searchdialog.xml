@@ -9,7 +9,7 @@
         android:id="@+id/textView1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="请先到餐厅预定选择店铺"
+        android:text="Please Select Restaurant"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <LinearLayout
@@ -23,8 +23,9 @@
              android:layout_height="wrap_content"
              android:layout_weight="1"
              android:background="@color/transparent"
+             android:clickable="false"
              android:padding="10dp"
-             android:src="@android:drawable/ic_btn_speak_now" />
+             android:src="@android:drawable/ic_menu_search" />
 
     <EditText
         android:id="@+searchdialog/editText1"

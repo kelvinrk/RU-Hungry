@@ -14,7 +14,7 @@
             android:id="@+register/textView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="用户名" />
+            android:text="User Name" />
 
         <EditText
             android:id="@+register/editText1"
@@ -31,7 +31,7 @@
             android:id="@+register/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="密    码" />
+            android:text="Password" />
 
         <EditText
             android:id="@+register/editText2"
@@ -52,7 +52,7 @@
             android:layout_height="38dp"
             android:layout_weight="1"
             android:background="@drawable/buttonstyle"
-            android:text="登录" />
+            android:text="Login" />
 
         <Button
             android:id="@+register/button2"
@@ -61,16 +61,17 @@
             android:layout_height="38dp"
             android:layout_weight="1"
             android:background="@drawable/buttonstyle"
-            android:text="找回密码" />
+            android:text="Forget PWD" />
         
          <Button
-            android:id="@+register/button3"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="38dp"
-            android:layout_weight="1"
-            android:background="@drawable/buttonstyle"
-            android:text="注册" />
+             android:id="@+register/button3"
+             style="?android:attr/buttonStyleSmall"
+             android:layout_width="wrap_content"
+             android:layout_height="38dp"
+             android:layout_weight="1"
+             android:background="@drawable/buttonstyle"
+             android:text="Register" />
+
     </LinearLayout>
 
 </LinearLayout>

@@ -72,16 +72,16 @@ public class UpdateManager {
 
 	private void showNoticeDialog() {
 		AlertDialog.Builder builder = new Builder(mContext);
-		builder.setTitle("软件版本更新");
+		builder.setTitle("Software Version Update");
 		builder.setMessage(updateMsg);
-		builder.setPositiveButton("下载", new OnClickListener() {
+		builder.setPositiveButton("Download", new OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.dismiss();
 				showDownloadDialog();
 			}
 		});
-		builder.setNegativeButton("以后再说", new OnClickListener() {
+		builder.setNegativeButton("Later", new OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.dismiss();
@@ -93,14 +93,14 @@ public class UpdateManager {
 
 	private void showDownloadDialog() {
 		AlertDialog.Builder builder = new Builder(mContext);
-		builder.setTitle("软件版本更新");
+		builder.setTitle("Update Software");
 
 		final LayoutInflater inflater = LayoutInflater.from(mContext);
 		View v = inflater.inflate(R.layout.progress, null);
 		mProgress = (ProgressBar) v.findViewById(R.id.progress);
 
 		builder.setView(v);
-		builder.setNegativeButton("取消", new OnClickListener() {
+		builder.setNegativeButton("Cancel", new OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.dismiss();

@@ -10,6 +10,6 @@
             android:layout_gravity="center_horizontal"
             android:gravity="center_horizontal"
             android:padding="16dp"
-            android:text="更多" />
+            android:text="Loading..." />
 
     </LinearLayout>

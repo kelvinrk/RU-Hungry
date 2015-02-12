@@ -53,7 +53,7 @@
             android:layout_marginTop="15dp"
             android:background="@drawable/buttonstyle"
             android:focusable="false"
-            android:text="点菜" />
+            android:text="Add to Cart" />
 
     </LinearLayout>
 

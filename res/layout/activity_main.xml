@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             android:background="@color/transparent"
             android:focusableInTouchMode="true"
-            android:src="@android:drawable/ic_btn_speak_now" />
+            android:src="@android:drawable/ic_menu_search" />
 
         <requestFocus />
 
@@ -30,7 +30,7 @@
             android:layout_weight="1"
             android:gravity="left"
             android:paddingRight="5dp"
-            android:text="语音查询"
+            android:text="Search"
             android:textColor="@color/gold" />
 
         <ImageButton
@@ -39,7 +39,6 @@
             android:layout_height="wrap_content"
             android:background="@color/transparent"
             android:src="@android:drawable/ic_menu_manage" />
-
     </LinearLayout>
 
     <TabHost
@@ -69,13 +68,15 @@
                         android:layout_height="match_parent"
                         android:orientation="vertical" >
 
-                        <ListView
-                            android:id="@+id/mlistView1"
-                            android:layout_width="fill_parent"
-                            android:layout_height="fill_parent"
-                            android:layout_weight="1" >
+                        <TextView
+                            android:id="@+id/info"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center_vertical"
+                            android:text="@string/app_info"
+                            android:textColor="@color/gold"
+                            android:textSize="20dp" />
 
-                        </ListView>
                     </LinearLayout>
 
                     <LinearLayout
@@ -83,7 +84,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:orientation="vertical" >
-
                     </LinearLayout>
 
                     <LinearLayout
@@ -91,8 +91,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:orientation="vertical" >
-
-                    </LinearLayout>                    
+                    </LinearLayout>
                 </FrameLayout>
 
                 <TabWidget
@@ -100,7 +99,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignParentBottom="true" >
-
                 </TabWidget>
             </RelativeLayout>
         </LinearLayout>

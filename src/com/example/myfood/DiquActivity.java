@@ -1,9 +1,18 @@
 package com.example.myfood;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -15,6 +24,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -27,50 +37,52 @@ import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.Toast;
 
-import com.example.adapter.categoryAdapter;
+import com.example.adapter.RestaurantAdapter;
 import com.example.control.MyListView;
 import com.example.control.MyListView.OnRefreshListener;
-import com.example.jsonservices.jsoncategory;
+import com.example.jsonservices.RestaurantJSON;
 import com.example.method.mymethod;
-import com.example.model.category;
-import com.example.utils.myapplication;
+import com.example.model.Restaurant;
+import com.example.utils.DBhelper;
+import com.example.utils.MyApplication;
 
 public class DiquActivity extends Activity {
 
 	private ProgressDialog ProgressDialog1; // 加载对话框
 	private mymethod mymethods; // 公共方法调用
-	private categoryAdapter adapter; // 店铺adapter
+	private RestaurantAdapter adapter; // 店铺adapter
 	private SimpleAdapter dqadapter; // 地区adapter
-	private myapplication myapplication1;
+	private MyApplication myapplication1;
 	private Thread thread = null;
-	private int page = 1;
 	private MyListView listview1;
 	private View view;
-	private List<category> list1;
+	private List<Restaurant> list1;
 	private List<HashMap<String, Object>> categorylist = new ArrayList<HashMap<String, Object>>();
 	private List<HashMap<String, Object>> dqlist = null;
 	private final int pageType = 1;
 	private Thread Thread1;
 	private boolean havedata = true; // 来判断是否还有数据
 	private TabHost tabhost;
-	private List<category> dqcategory;
-	private List<category> Categorys;
+	private List<Restaurant> dqcategory;
+	private List<Restaurant> Categorys;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_diqu);
 		try {
-			myapplication1 = (myapplication) getApplication();
+			myapplication1 = (MyApplication) getApplication();
 			myapplication1.getInstance().addActivity(this);
 			tabhost = (TabHost) findViewById(android.R.id.tabhost);
 			tabhost.setup();
 			TabWidget tabwidget = tabhost.getTabWidget();
-			tabhost.addTab(tabhost.newTabSpec("tab1").setIndicator("地区")
+			tabhost.addTab(tabhost.newTabSpec("tab1").setIndicator("Campus")
 					.setContent(R.id.tab1));
-			tabhost.addTab(tabhost.newTabSpec("tab2").setIndicator("地图模式")
+			tabhost.addTab(tabhost.newTabSpec("tab2").setIndicator("View Map")
 					.setContent(R.id.tab2));
 			listview1 = (MyListView) findViewById(R.id.listview1);
+
+			
 			threadstart();
 			binddq();
 			tabhost.getTabWidget().getChildAt(0)
@@ -84,7 +96,7 @@ public class DiquActivity extends Activity {
 							try {
 								Builder mydialog = new AlertDialog.Builder(
 										DiquActivity.this);
-								mydialog.setTitle("地区选择");
+								mydialog.setTitle("Campus Selection");
 								mydialog.setAdapter(dqadapter,
 										new DialogInterface.OnClickListener() {
 
@@ -96,13 +108,12 @@ public class DiquActivity extends Activity {
 												// stub
 
 												try {
+													String test = "URL area_id=" + dqlist.get(which).get("id");
+													Log.v("JSON", test);
 													myapplication1
-															.setcategoryurl("/android/json_category/list.aspx?channel_id=2&parent_id="
-																	+ dqlist.get(
-																			which)
-																			.get("id")
-																			.toString()
-																	+ "&page=");
+															.setcategoryurl("servlet/JsonAction?action_flag=Category&area_id="
+																	+ dqlist.get(which).get("id"));
+													myapplication1.setAreaId((String) dqlist.get(which).get("id"));
 													Intent Intent1 = new Intent();
 													Intent1.setClass(
 															DiquActivity.this,
@@ -132,7 +143,8 @@ public class DiquActivity extends Activity {
 					// TODO Auto-generated method stub
 
 					Intent intent1 = new Intent();
-					intent1.setClass(DiquActivity.this, CantingActivity.class);
+//					intent1.setClass(DiquActivity.this, CantingActivity.class);
+					intent1.setClass(DiquActivity.this, MenuActivity.class);
 					Bundle bundle1 = new Bundle();
 					bundle1.putInt(
 							"id",
@@ -194,7 +206,7 @@ public class DiquActivity extends Activity {
 						// 判断是否滚动到底部
 						if (view.getLastVisiblePosition() == view.getCount() - 1) {
 							if (havedata) {
-								threadmore();
+//								threadmore();
 							}
 						}
 					}
@@ -256,7 +268,7 @@ public class DiquActivity extends Activity {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			mymethods.showMsg(DiquActivity.this, "无网络访问");
+			mymethods.showMsg(DiquActivity.this, "No Network Connection");
 		}
 	}
 
@@ -268,22 +280,29 @@ public class DiquActivity extends Activity {
 	 * 启动地图
 	 */
 	private void qdmap() {
+		Log.v("Test", "qdmap()");
+		String area_id = myapplication1.getAreaId();
+
 		ArrayList<String> arrayList = new ArrayList<String>();
 		for (int i = 0; i < categorylist.size(); i++) {
-			if (!"".equals(categorylist.get(i).get("_link_url").toString())) {
-				arrayList.add(categorylist.get(i).get("_link_url").toString()
-						+ "," + categorylist.get(i).get("_title").toString()
-						+ ","
+			if (!"".equals(categorylist.get(i).get("_title").toString())) {
+
+				arrayList.add(area_id + ","
+						+ categorylist.get(i).get("_id").toString() + ","
+						+ categorylist.get(i).get("_title").toString() + ","
+						+ categorylist.get(i).get("_content").toString() + ","
 						+ categorylist.get(i).get("_seo_title").toString());
 			}
 		}
+
 		Intent intent = new Intent();
 		Bundle bundle = new Bundle();
 		intent.setClass(DiquActivity.this, MapActivity.class);
 
-		bundle.putStringArrayList("map", arrayList);
+		bundle.putStringArrayList("ResMap", arrayList);
 		intent.putExtras(bundle);
 		startActivity(intent);
+		Log.v("Test", "start ACT");
 		overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);
 	}
 
@@ -292,25 +311,32 @@ public class DiquActivity extends Activity {
 	 */
 	private void binddq() {
 		try {
-			dqcategory = jsoncategory
-					.getjsonlastcategory(
-
-					myapplication1.getlocalhost()
-							+ "/android/json_category/list.aspx?channel_id=2&call_index=dq&page="
-							+ page);
-
 			dqlist = new ArrayList<HashMap<String, Object>>();
-
-			for (category dqcategorys : dqcategory) {
-				HashMap<String, Object> item = new HashMap<String, Object>();
-				item.put("id", dqcategorys.get_id());
-				item.put("title", dqcategorys.get_title());
-				dqlist.add(item);
-			}
+			
+			HashMap<String, Object> item = new HashMap<String, Object>();
+			item.put("id", "0");
+			item.put("title", "All Campuses");
+			dqlist.add(item);
+			item = new HashMap<String, Object>();
+			item.put("id", "1");
+			item.put("title", "College Ave");
+			dqlist.add(item);
+			item = new HashMap<String, Object>();
+			item.put("id", "2");
+			item.put("title", "Busch");
+			dqlist.add(item);
+			item = new HashMap<String, Object>();
+			item.put("id", "3");
+			item.put("title", "Livingston");
+			dqlist.add(item);
+			item = new HashMap<String, Object>();
+			item.put("id", "4");
+			item.put("title", "Cook/Douglass");
+			dqlist.add(item);
 			dqadapter = new SimpleAdapter(DiquActivity.this, dqlist,
-					R.layout.alertdialog_dq, new String[] { "title", "id" },
+					R.layout.alertdialog_dq, new String[] { "title", ""},
 					new int[] { R.id.alertdialog_dq_textView1,
-							R.id.alertdialog_dq_textView2 });
+					R.id.alertdialog_dq_textView2});
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -322,7 +348,7 @@ public class DiquActivity extends Activity {
 	 */
 	public void threadstart() {
 		ProgressDialog1 = new ProgressDialog(this);
-		ProgressDialog1.setMessage("数据加载中，请稍后...");
+		ProgressDialog1.setMessage("Loading data，please wait...");
 		ProgressDialog1.show();
 		Thread1 = new Thread(new Runnable() {
 
@@ -343,9 +369,9 @@ public class DiquActivity extends Activity {
 	private Handler Handler1 = new Handler() {
 		public void handleMessage(Message msg) {
 			try {
-				list1 = loaddata(page);
+				list1 = loaddata();
 				bindlist(list1);
-				adapter = new categoryAdapter(DiquActivity.this, list1);
+				adapter = new RestaurantAdapter(DiquActivity.this, list1);
 				adapter.addlist(list1);
 				listview1.setAdapter(adapter);
 
@@ -365,7 +391,7 @@ public class DiquActivity extends Activity {
 			} catch (Exception e) {
 				e.printStackTrace();
 				ProgressDialog1.dismiss();
-				Toast.makeText(DiquActivity.this, "网络不给力，无法获得活动信息!", 1).show();
+				Toast.makeText(DiquActivity.this, "Weak Network Connection, please wait!", 1).show();
 			}
 		}
 	};
@@ -375,7 +401,7 @@ public class DiquActivity extends Activity {
 	 */
 	public void threadmore() {
 		ProgressDialog1 = new ProgressDialog(this);
-		ProgressDialog1.setMessage("数据加载中，请稍后...");
+		ProgressDialog1.setMessage("Loading data，please wait...");
 		ProgressDialog1.show();
 		Thread1 = new Thread(new Runnable() {
 
@@ -396,24 +422,24 @@ public class DiquActivity extends Activity {
 	private Handler Handler2 = new Handler() {
 		public void handleMessage(Message msg) {
 			try {
-				list1 = loaddata(page += 1);
+				list1 = loaddata();
 				bindlist(list1);
-				adapter.addlist(list1);
+//				adapter.addlist(list1);
 				adapter.notifyDataSetChanged();
 				ProgressDialog1.dismiss();
 			} catch (Exception e) {
 				e.printStackTrace();
 				ProgressDialog1.dismiss();
 				adapter.notifyDataSetChanged();
-				Toast.makeText(DiquActivity.this, "已无数据记录", 1).show();
+				Toast.makeText(DiquActivity.this, "No record", 1).show();
 				havedata = false;
 			}
 		}
 	};
 
-	public void bindlist(List<category> addlist) {
+	public void bindlist(List<Restaurant> addlist) {
 		try {
-			for (category categorys : addlist) {
+			for (Restaurant categorys : addlist) {
 				HashMap<String, Object> item = new HashMap<String, Object>();
 				item.put("_id", categorys.get_id());
 				item.put("_channel_id", categorys.get_channel_id());
@@ -439,17 +465,22 @@ public class DiquActivity extends Activity {
 	/***
 	 * 加载json数据
 	 */
-	public List<category> loaddata(int page) {
+	@SuppressLint("NewApi")
+	
+	public List<Restaurant> loaddata() {
+
+		String temp_url = localhost() + myapplication1.getcategoryurl();
 
 		try {
-			Categorys = jsoncategory.getjsonlastcategory(myapplication1
-					.getlocalhost() + myapplication1.getcategoryurl() + page);
+			Categorys = RestaurantJSON.getJsonCategory(temp_url);
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return Categorys;
 	}
+	
+
 
 	/**
 	 * 打电话
@@ -491,5 +522,6 @@ public class DiquActivity extends Activity {
 		return super.onKeyDown(keyCode, event);
 
 	}
-
+	
+	
 }

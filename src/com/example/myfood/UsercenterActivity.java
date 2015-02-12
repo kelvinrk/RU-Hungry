@@ -17,13 +17,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.jsonservices.jsonusers;
-import com.example.model.users;
+import com.example.jsonservices.UserJSON;
+import com.example.model.User;
 import com.example.utils.UsersDBManager;
-import com.example.utils.myapplication;
+import com.example.utils.MyApplication;
 
 public class UsercenterActivity extends Activity {
-	private myapplication myapplication1;
+	private MyApplication myapplication1;
 	private UsersDBManager UsersDBManager1;
 	private ProgressDialog ProgressDialog1; // 加载对话框
 	private ImageView ImageView1;
@@ -34,17 +34,17 @@ public class UsercenterActivity extends Activity {
 	private Button Button3;// 参与问卷调查
 	private Button Button4;// 修改密码
 	private Button Button5;// 退出登录
-	private List<users> list1 = null;
-	private List<users> Users;
+	private List<User> list1 = null;
+	private List<User> Users;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_usercenter);
-		myapplication1 = (myapplication) getApplication();
+		myapplication1 = (MyApplication) getApplication();
 		myapplication1.getInstance().addActivity(this);
 		UsersDBManager1 = new UsersDBManager(this);
-		list1 = loaddata();
+		//list1 = loaddata();
 		ImageView1 = (ImageView) findViewById(R.usercenter.imageView1);
 		TextView1 = (TextView) findViewById(R.usercenter.textView1);
 		TextView2 = (TextView) findViewById(R.usercenter.textView2);
@@ -79,7 +79,7 @@ public class UsercenterActivity extends Activity {
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				Intent intent = new Intent();
-				intent.setClass(UsercenterActivity.this, DinglikeActivity.class);
+				intent.setClass(UsercenterActivity.this, Favorite.class);
 				startActivity(intent);
 			}
 		});
@@ -91,9 +91,9 @@ public class UsercenterActivity extends Activity {
 				// TODO Auto-generated method stub
 				AlertDialog.Builder builder = new AlertDialog.Builder(
 						UsercenterActivity.this);
-				builder.setTitle("提示")
-						.setMessage("确认退出吗?")
-						.setPositiveButton("退出",
+				builder.setTitle("Hint")
+						.setMessage("Confirm to Exit?")
+						.setPositiveButton("Exit",
 								new DialogInterface.OnClickListener() {
 
 									@Override
@@ -104,7 +104,7 @@ public class UsercenterActivity extends Activity {
 										finish();
 									}
 								});
-				builder.setNegativeButton("取消",
+				builder.setNegativeButton("Cancel",
 						new DialogInterface.OnClickListener() {
 
 							@Override
@@ -122,7 +122,7 @@ public class UsercenterActivity extends Activity {
 
 	public void binddata() {
 		ProgressDialog1 = new ProgressDialog(this);
-		ProgressDialog1.setMessage("数据加载中，请稍后...");
+		ProgressDialog1.setMessage("Loading data, please wait...");
 		ProgressDialog1.show();
 		new Thread(new Runnable() {
 
@@ -142,15 +142,15 @@ public class UsercenterActivity extends Activity {
 	private Handler handler = new Handler() {
 		public void handleMessage(Message msg) {
 			try {
-				TextView1.setText(list1.get(0).get_user_name());
-				TextView2.setText("手机号：" + list1.get(0).get_telphone());
-				ImageView1.setImageBitmap(myapplication1.bitmap(list1.get(0)
-						.get_avatar()));
+				TextView1.setText(UsersDBManager1.username());
+//				TextView2.setText("手机号：" + list1.get(0).get_telphone());
+//				ImageView1.setImageBitmap(myapplication1.bitmap(list1.get(0)
+//						.get_avatar()));
 				ProgressDialog1.dismiss();
 			} catch (Exception e) {
 				e.printStackTrace();
 				ProgressDialog1.dismiss();
-				Toast.makeText(UsercenterActivity.this, "网络不给力，无法获得活动信息!", 1)
+				Toast.makeText(UsercenterActivity.this, "Weak network connection, please wait.", 1)
 						.show();
 			}
 		}
@@ -162,18 +162,18 @@ public class UsercenterActivity extends Activity {
 	 * @param page
 	 * @return
 	 */
-	public List<users> loaddata() {
-
-		try {
-			Users = jsonusers.getjsonlastusers(myapplication1.getlocalhost()
-					+ "/android/json_users/list.aspx?id="
-					+ myapplication1.getusername());
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return Users;
-	}
+//	public List<users> loaddata() {
+//
+//		try {
+//			Users = jsonusers.getjsonlastusers(myapplication1.getlocalhost()
+//					+ "/android/json_users/list.aspx?id="
+//					+ myapplication1.getusername());
+//
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		return Users;
+//	}
 
 	@Override
 	public void onBackPressed() {

@@ -1,6 +1,6 @@
 package com.example.myfood;
 
-import com.example.utils.myapplication;
+import com.example.utils.MyApplication;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -9,12 +9,12 @@ import android.widget.TextView;
 
 public class AboutActivity extends Activity {
 	private TextView textView;
-	private myapplication myapplication1;
+	private MyApplication myapplication1;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_about);
-		myapplication1 = (myapplication) getApplication();
+		myapplication1 = (MyApplication) getApplication();
 		myapplication1.getInstance().addActivity(this);
 		textView = (TextView) findViewById(R.about.textView1);
 		textView.setText(Html

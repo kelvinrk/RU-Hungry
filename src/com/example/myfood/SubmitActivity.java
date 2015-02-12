@@ -11,8 +11,11 @@ import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
@@ -27,6 +30,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Editable;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -36,51 +41,59 @@ import android.widget.EditText;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.example.jsonservices.jsonusers;
-import com.example.model.submit;
-import com.example.model.users;
-import com.example.utils.GoodsDBManager;
+import com.example.jsonservices.UserJSON;
+import com.example.model.Meal;
+import com.example.model.Submit;
+import com.example.model.User;
+import com.example.utils.DBhelper;
+import com.example.utils.MealDBManager;
 import com.example.utils.SubmitDBManager;
-import com.example.utils.dingnumDBManager;
-import com.example.utils.myapplication;
+import com.example.utils.OrderDBManager;
+import com.example.utils.MyApplication;
 
 public class SubmitActivity extends Activity {
-	private myapplication myapplication1;
+	private MyApplication myapplication1;
 	private ProgressDialog ProgressDialog1; // 加载对话框
 	private SubmitDBManager submitDBManager1;
-	private dingnumDBManager dingnumDBManager1;
-	private GoodsDBManager goodsDBManager1;
+	private OrderDBManager dingnumDBManager1;
+	private MealDBManager goodsDBManager1;
 	private Calendar calendar;
 	private String selectdate = null;
-	private EditText AEditText1; // 用户名
-	private EditText AEditText2;// 手机号
-	private EditText AEditText3;// 人数
-	private EditText BEditText1;// 酒店
-	private EditText BEditText2;// 时间
-	private EditText CEditText1;// 点菜数量
-	private EditText CEditText2;// 金额
-	private EditText DEditText1;// 金额
-	private Button button1;// 确认预定
-	private List<users> Users;
+	private EditText mDingCaiRen; // Ding Cai Ren
+	private EditText mUserCellPhone;// Phone Number
+	private EditText mUserAddress;// Address
+	private EditText mUserZipCode;// ZipCode
+	private EditText mUserCity;// City
+	private EditText mUserState;// State
+	private EditText mUserTime;// Time
+	private EditText mAmount;// Amount
+	private EditText mTotal;// Total
+	private EditText mRequirement; // Special Requirements
+	private Button button1;// Confirm
+	private List<User> Users;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_submit);
-		myapplication1 = (myapplication) getApplication();
+		myapplication1 = (MyApplication) getApplication();
 		myapplication1.getInstance().addActivity(this);
 		submitDBManager1 = new SubmitDBManager(this);
-		dingnumDBManager1 = new dingnumDBManager(this);
-		goodsDBManager1 = new GoodsDBManager(this);
+		dingnumDBManager1 = new OrderDBManager(this);
+		goodsDBManager1 = new MealDBManager(this);
 		calendar = Calendar.getInstance();
-		AEditText1 = (EditText) findViewById(R.tijiao.AeditText1);
-		AEditText2 = (EditText) findViewById(R.tijiao.AeditText2);
-		AEditText3 = (EditText) findViewById(R.tijiao.AeditText3);
-		BEditText1 = (EditText) findViewById(R.tijiao.BeditText1);
-		BEditText2 = (EditText) findViewById(R.tijiao.BeditText2);
-		CEditText1 = (EditText) findViewById(R.tijiao.CeditText1);
-		CEditText2 = (EditText) findViewById(R.tijiao.CeditText2);
-		DEditText1 = (EditText) findViewById(R.tijiao.DeditText1);
+		
+		mDingCaiRen = (EditText) findViewById(R.id.user_name); // User name
+		mUserCellPhone = (EditText) findViewById(R.id.user_cell);// Phone Number
+		mUserAddress = (EditText) findViewById(R.id.user_address);// Address
+		mUserZipCode = (EditText) findViewById(R.id.user_zip);// ZipCode
+		mUserCity = (EditText) findViewById(R.id.user_city);// City
+		mUserState = (EditText) findViewById(R.id.user_state);// State
+		mUserTime = (EditText) findViewById(R.id.user_time);// Time
+		mRequirement = (EditText) findViewById(R.tijiao.DeditText1); // Special Requirements
+		mAmount = (EditText) findViewById(R.id.amount);// Amount
+		mTotal = (EditText) findViewById(R.id.total);// Total
+		
 		button1 = (Button) findViewById(R.tijiao.button1);
 		binddata();
 		button1.setOnClickListener(new OnClickListener() {
@@ -98,20 +111,22 @@ public class SubmitActivity extends Activity {
 	 */
 	public void updateding() {
 
-		if (AEditText1.getText().toString().equals("")) {
-			Toast.makeText(this, "客户信息不能为空", 1).show();
-		} else if (AEditText2.getText().toString().equals("")) {
-			Toast.makeText(this, "联系方式不能为空", 1).show();
-		} else if (AEditText3.getText().toString().equals("")) {
-			Toast.makeText(this, "用餐人数不能为空", 1).show();
-		} else if (BEditText2.getText().toString().equals("")) {
-			Toast.makeText(this, "到店时间不能为空", 1).show();
+		if (mDingCaiRen.getText().toString().equals("")) {
+			Toast.makeText(this, "User Name can not be Empty", 1).show();
+		} else if (mUserCellPhone.getText().toString().equals("")) {
+			Toast.makeText(this, "User Cell Phone can not be Empty", 1).show();
+		} else if (mUserZipCode.getText().toString().equals("")) {
+			Toast.makeText(this, "ZipCode can not be Empty", 1).show();
+		} else if (mUserCity.getText().toString().equals("")) {
+			Toast.makeText(this, "City can not be Empty", 1).show();
+		} else if (mUserState.getText().toString().equals("")) {
+			Toast.makeText(this, "State can not be Empty", 1).show();
 		} else {
 			new AlertDialog.Builder(SubmitActivity.this)
-					.setTitle("提示")
-					.setMessage("确认提交吗?")
-					.setPositiveButton("取消", null)
-					.setNegativeButton("确定",
+					.setTitle("Reminder")
+					.setMessage("Ready to submit?")
+					.setPositiveButton("Cancel", null)
+					.setNegativeButton("Confirm",
 							new DialogInterface.OnClickListener() {
 
 								@Override
@@ -136,8 +151,9 @@ public class SubmitActivity extends Activity {
 	 */
 	private void step1() {
 		ProgressDialog1 = new ProgressDialog(this);
-		ProgressDialog1.setMessage("提交操作中...");
+		ProgressDialog1.setMessage("Submitting...");
 		ProgressDialog1.show();
+		Log.v("step1","show");
 		new Thread(new Runnable() {
 
 			@Override
@@ -158,8 +174,9 @@ public class SubmitActivity extends Activity {
 	 */
 	private void step2() {
 		ProgressDialog1 = new ProgressDialog(this);
-		ProgressDialog1.setMessage("提交操作中...");
+		ProgressDialog1.setMessage("Submitting...");
 		ProgressDialog1.show();
+		Log.v("step2","show");
 		new Thread(new Runnable() {
 
 			@Override
@@ -180,8 +197,9 @@ public class SubmitActivity extends Activity {
 	 */
 	private void step3() {
 		ProgressDialog1 = new ProgressDialog(this);
-		ProgressDialog1.setMessage("提交操作中...");
+		ProgressDialog1.setMessage("Submitting...");
 		ProgressDialog1.show();
+		Log.v("step3","show");
 		new Thread(new Runnable() {
 
 			@Override
@@ -203,30 +221,42 @@ public class SubmitActivity extends Activity {
 				/**
 				 * 提交订单
 				 */
-				submit modelSubmit = new submit(SubmitActivity.this);
-				modelSubmit.set_username(AEditText1.getText().toString());
-				modelSubmit.set_tel(AEditText2.getText().toString());
-				modelSubmit.set_renshu(Integer.valueOf(AEditText3.getText()
-						.toString()));
-				modelSubmit.set_cantingname(BEditText1.getText().toString());
-				modelSubmit.set_daodiantime(BEditText2.getText().toString());
-				if ("".equals(DEditText1.getText().toString())) {
-					modelSubmit.set_contract("无附加要求");
-				} else {
-					modelSubmit.set_contract(DEditText1.getText().toString());
-				}
-				modelSubmit.set_fukuan(false);
-				modelSubmit.set_queding(true);
-				modelSubmit.set_totalmoney(Double.valueOf(CEditText2.getText()
-						.toString()));
+				Log.v("step1","deal");
+				Submit modelSubmit = new Submit(SubmitActivity.this);
 				modelSubmit.set_submitnum(myapplication1.get_dingdanstring());
+				modelSubmit.set_username(myapplication1.getusername());
+				modelSubmit.set_dingcairen(mDingCaiRen.getText().toString());
+				modelSubmit.set_tel(mUserCellPhone.getText().toString());	
+				modelSubmit.set_address(mUserAddress.getText().toString());
+				modelSubmit.set_zipcode(mUserZipCode.getText().toString());
+				modelSubmit.set_city(mUserCity.getText().toString());
+				modelSubmit.set_state(mUserState.getText().toString());
+				modelSubmit.set_cantingname(myapplication1.getdiqu().toString());
+				modelSubmit.set_daodiantime(mUserTime.getText().toString());
+				if ("".equals(mRequirement.getText().toString())) {
+					modelSubmit.set_contract("null");
+				} else {
+					modelSubmit.set_contract(mRequirement.getText().toString());
+				}
+				modelSubmit.set_amount(Double.valueOf(mAmount.getText()
+						.toString()));
+				double money = Double.valueOf(mTotal.getText().toString().substring(1));
+
+				modelSubmit.set_total(money);
+//				modelSubmit.set_renshu(Integer.valueOf(AEditText3.getText()
+//						.toString()));
+//				modelSubmit.set_fukuan(false);
+//				modelSubmit.set_queding(true);
 				submitDBManager1.updateding(modelSubmit);
 				/**
 				 * 插入对应订单所点菜品
 				 */
 				dingnumDBManager1
-						.insertdingnum(myapplication1.get_dingdanstring(),
-								loaddata().get(0).get_user_name());
+						.insertdingnum(myapplication1.get_dingdanstring(),modelSubmit.get_username().toString());
+//								loaddata().get(0).get_user_name());
+				
+				
+				
 				ProgressDialog1.dismiss();
 			} catch (Exception e) {
 				ProgressDialog1.dismiss();
@@ -237,30 +267,56 @@ public class SubmitActivity extends Activity {
 
 	private Handler handler2 = new Handler() {
 		public void handleMessage(Message msg) {
+			boolean res = false;
+			Log.v("step2","deal");
+			String message = "";
+			String dishId = "dishId";
+			String dishQuant = "dishQuant";
+			String dingcairen = mDingCaiRen.getText().toString();
+			String userId = myapplication1.getusername();
+			String userAddress = mUserAddress.getText().toString();
+			String userZipCode = mUserZipCode.getText().toString();
+			String userCity = mUserCity.getText().toString();
+			String userState = mUserState.getText().toString();
+			String amount = mAmount.getText().toString();
+			String total = mTotal.getText().toString();
+			String contract = new String();
+			if ("".equals(mRequirement.getText().toString())) {
+				contract = "null";
+			} else {
+				contract = mRequirement.getText().toString();
+			}
+			int count = Integer.parseInt(amount);
+			
+			userAddress = userAddress.replaceAll("\\s+","%");
+			
+			
 			try {
 				int result;
-				String target = myapplication1.getlocalhost()
-						+ "/android/json_submit/add.aspx";
+				String target = myapplication1.getlocalhost() + "servlet/ReceiveOrderServlet?";
+				
 				HttpPost httprequest = new HttpPost(target);
 				List<NameValuePair> paramsList = new ArrayList<NameValuePair>();
-				paramsList.add(new BasicNameValuePair("_submitnum",
-						myapplication1.get_dingdanstring()));
-				paramsList.add(new BasicNameValuePair("_username", AEditText1
-						.getText().toString()));
-				paramsList.add(new BasicNameValuePair("_tel", AEditText2
-						.getText().toString()));
-				paramsList.add(new BasicNameValuePair("_rensu", AEditText3
-						.getText().toString()));
-				paramsList.add(new BasicNameValuePair("_cantingname",
-						BEditText1.getText().toString()));
-				paramsList.add(new BasicNameValuePair("_daodiantime",
-						BEditText2.getText().toString()));
-				paramsList.add(new BasicNameValuePair("_contract", DEditText1
-						.getText().toString()));
-				paramsList.add(new BasicNameValuePair("_fukuan", "false"));
-				paramsList.add(new BasicNameValuePair("_queding", "false"));
-				paramsList.add(new BasicNameValuePair("_totalmoney", CEditText2
-						.getText().toString()));
+				paramsList.add(new BasicNameValuePair("userName", dingcairen));
+				paramsList.add(new BasicNameValuePair("userId", userId));
+				paramsList.add(new BasicNameValuePair("userAddress", userAddress));
+				paramsList.add(new BasicNameValuePair("userZipcode", userZipCode));
+				paramsList.add(new BasicNameValuePair("userCity", userCity));
+				paramsList.add(new BasicNameValuePair("userState", userState));
+				paramsList.add(new BasicNameValuePair("orderPrice", total));
+				String restName = myapplication1.getdiqu();
+				restName = restName.replaceAll("\\s+","%");
+				paramsList.add(new BasicNameValuePair("resId", restName));
+				paramsList.add(new BasicNameValuePair("orderSize", amount));
+				paramsList.add(new BasicNameValuePair("contract", contract));
+				
+				List<Meal> goods = goodsDBManager1.query();
+				while(count != 0){
+					paramsList.add(new BasicNameValuePair(dishId + count, goods.get(count-1).get_title()));
+					paramsList.add(new BasicNameValuePair(dishQuant + count, String.valueOf(goods.get(count-1).get_buynumber())));
+					count--;
+				}
+				
 				try {
 					httprequest.setEntity(new UrlEncodedFormEntity(paramsList,
 							"UTF-8"));
@@ -268,14 +324,13 @@ public class SubmitActivity extends Activity {
 					HttpResponse httpResponse = HttpClient1
 							.execute(httprequest);
 					if (httpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-						result = Integer.parseInt(EntityUtils
-								.toString(httpResponse.getEntity()));
+						result = Integer.parseInt(EntityUtils.toString(httpResponse.getEntity()));
 					} else {
 						result = 0;
 					}
 					// 针对这里不能用字符串来判断，因为字符串判断是失效的，必须用数字来进行条件判断读取返回结果达到想要的页面跳转
 					if (result == 1) {
-						Toast.makeText(SubmitActivity.this, "提交成功", 1).show();
+						res = true;
 					}
 
 				} catch (UnsupportedEncodingException e1) {
@@ -290,15 +345,22 @@ public class SubmitActivity extends Activity {
 				ProgressDialog1.dismiss();
 				e.printStackTrace();
 			}
+			
+			if(res)
+				message = "Submit Successful!";
+			else
+				message = "Submit Failure";
+			Toast.makeText(SubmitActivity.this,
+					message, Toast.LENGTH_SHORT).show();
 		}
 	};
-
+	
 	private Handler handler3 = new Handler() {
 		public void handleMessage(Message msg) {
 			try {
 				myapplication1.settotalgoods("0");
 				goodsDBManager1.alldelete();
-				Toast.makeText(SubmitActivity.this, "您的订单已经提交，客服会尽快与您取得联系!", 1)
+				Toast.makeText(SubmitActivity.this, "Your Order has been submitted，our customer service will reach you out soon", 1)
 						.show();
 
 				Intent intent = new Intent();
@@ -320,6 +382,7 @@ public class SubmitActivity extends Activity {
 	public void binddata() {
 		try {
 			if (!myapplication1.ifpass()) {
+
 				Intent Intent1 = new Intent();
 				Intent1.setClass(SubmitActivity.this, RegisterActivity.class);
 				startActivity(Intent1);
@@ -327,11 +390,11 @@ public class SubmitActivity extends Activity {
 				overridePendingTransition(R.anim.in_from_right,
 						R.anim.out_to_left);
 			} else {
-				AEditText1.setText(loaddata().get(0).get_user_name());
-				AEditText2.setText(loaddata().get(0).get_telphone());
-				AEditText3.setText("2");
-				BEditText1.setText(myapplication1.getdiqu());
-				BEditText2.setOnClickListener(new OnClickListener() {
+//				AEditText1.setText(loaddata().get(0).get_user_name());
+//				AEditText2.setText(loaddata().get(0).get_telphone());
+//				AEditText3.setText("2");
+//				BEditText1.setText(myapplication1.getdiqu());
+				mUserTime.setOnClickListener(new OnClickListener() {
 
 					@Override
 					public void onClick(View v) {
@@ -346,10 +409,12 @@ public class SubmitActivity extends Activity {
 
 					}
 				});
-				CEditText1.setText(myapplication1.gettotalgoods());
-				CEditText2.setText(myapplication1.gettotalmoney());
+				String totalMoney = String.format("$%.2f", Double.parseDouble(myapplication1.gettotalmoney()));
+				mTotal.setText(totalMoney);
+				mAmount.setText(myapplication1.gettotalgoods());
 			}
 		} catch (Exception e) {
+			Log.v("Submit", "bind exception");
 			e.printStackTrace();
 			Intent Intent1 = new Intent();
 			Intent1.setClass(SubmitActivity.this, RegisterActivity.class);
@@ -386,7 +451,7 @@ public class SubmitActivity extends Activity {
 		public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
 			// TODO Auto-generated method stub
 			selectdate += " " + hourOfDay + ":" + minute + ":00";
-			BEditText2.setText(selectdate);
+			mUserTime.setText(selectdate);
 		};
 	};
 
@@ -402,10 +467,10 @@ public class SubmitActivity extends Activity {
 	 * @param page
 	 * @return
 	 */
-	public List<users> loaddata() {
+	public List<User> loaddata() {
 
 		try {
-			Users = jsonusers.getjsonlastusers(myapplication1.getlocalhost()
+			Users = UserJSON.getjsonlastusers(myapplication1.getlocalhost()
 					+ "/android/json_users/list.aspx?id="
 					+ myapplication1.getusername());
 
@@ -420,11 +485,11 @@ public class SubmitActivity extends Activity {
 		if (event.getAction() == KeyEvent.ACTION_DOWN
 				&& KeyEvent.KEYCODE_BACK == keyCode) {
 			new AlertDialog.Builder(SubmitActivity.this)
-					.setTitle("是否取消")
-					.setMessage("你确定要取消订单吗?")
+					.setTitle("Cancel")
+					.setMessage("Are you sure to cancel?")
 					.setIcon(android.R.drawable.ic_dialog_info)
-					.setPositiveButton("取消", null)
-					.setNegativeButton("确定",
+					.setPositiveButton("No", null)
+					.setNegativeButton("Yes",
 							new DialogInterface.OnClickListener() {
 								@Override
 								public void onClick(DialogInterface arg0,

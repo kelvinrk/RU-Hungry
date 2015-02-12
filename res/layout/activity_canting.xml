@@ -44,7 +44,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="38dp"
                 android:background="@drawable/buttonstyle"
-                android:text="预订餐厅"
+                android:text="Reserve Restaurant"
                 android:textColor="@color/blue" />
         </LinearLayout>
 
@@ -58,7 +58,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="38dp"
                 android:background="@drawable/buttonstyle"
-                android:text="餐厅简介" />
+                android:text="Restaurant Introduction" />
         </LinearLayout>
 
         <LinearLayout
@@ -71,7 +71,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="38dp"
                 android:background="@drawable/buttonstyle"
-                android:text="经典菜品" />
+                android:text="Dishes" />
         </LinearLayout>
 
         <LinearLayout
@@ -84,7 +84,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="38dp"
                 android:background="@drawable/buttonstyle"
-                android:text="地图位置" />
+                android:text="Position" />
         </LinearLayout>
 
         <LinearLayout
@@ -97,7 +97,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="38dp"
                 android:background="@drawable/buttonstyle"
-                android:text="热线电话" />
+                android:text="Phone" />
         </LinearLayout>
     </LinearLayout>
 

@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DBhelper extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME_STRING = "datastorage";
 	private static final int DATABASE_VERSION = 1;
-	public static final String localHostIp = "http://172.31.97.56:8080/Order_Test/";
+	public static final String localHostIp = "http://172.31.112.147:8080/Order_Test/";
 
 	public DBhelper(Context context) {
 		super(context, DATABASE_NAME_STRING, null, DATABASE_VERSION);
@@ -22,12 +22,14 @@ public class DBhelper extends SQLiteOpenHelper {
 		// 下面个表是当注册并且到达订单时从dt_goods中把id导入到这个表里面，这个表和dt_goods，submit关联
 		db.execSQL("CREATE TABLE [dingnum] ([id] INTEGER  PRIMARY KEY NOT NULL,[ding_id] INTEGER  NULL,[buynumber] INTEGER  NULL,[user_name] VARCHAR(500)  NULL,[submitnum] VARCHAR(500)  NULL,[date] DATE  NULL)");
 		// 下面个表是订单
-		db.execSQL("CREATE TABLE [submit] ([id] INTEGER  PRIMARY KEY NOT NULL,[submitnum] varcHAR(500)  NULL,[username] VARCHAR(500)  NULL,[tel] vARCHAR(500)  NULL,[renshu] INTEGER  NULL,[cantingname] varcHAR(500)  NULL,[daodiantime] daTE  NULL,[contract] TEXT  NULL,[fukuan] BOOLEAN  NULL,[queding] BOOLEAN  NULL,[totalmoney] FLOAT  NULL,[adddate] DATE  NULL)");
+//		db.execSQL("CREATE TABLE [submit] ([id] INTEGER  PRIMARY KEY NOT NULL,[submitnum] varcHAR(500)  NULL,[username] VARCHAR(500)  NULL,[tel] vARCHAR(500)  NULL,[renshu] INTEGER  NULL,[cantingname] varcHAR(500)  NULL,[daodiantime] daTE  NULL,[contract] TEXT  NULL,[fukuan] BOOLEAN  NULL,[queding] BOOLEAN  NULL,[totalmoney] FLOAT  NULL,[adddate] DATE  NULL)");
+		db.execSQL("CREATE TABLE [submit] ([id] INTEGER  PRIMARY KEY NOT NULL,[submitnum] varcHAR(500)  NULL,[username] VARCHAR(500)  NULL,[dingcairen] VARCHAR(500) NULL,[tel] vARCHAR(500)  NULL,[address] vARCHAR(500)  NULL,[zipcode] vARCHAR(500)  NULL,[city] vARCHAR(500)  NULL,[state] vARCHAR(500)  NULL,[cantingname] varcHAR(500)  NULL,[daodiantime] daTE  NULL,[contract] TEXT  NULL,[amount] FLOAT NULL,[total] FLOAT NULL)");
+
 		// 喜欢表
 		db.execSQL("CREATE TABLE [dinglike] ([id] INTEGER  NOT NULL PRIMARY KEY AUTOINCREMENT,[goodsid] INTEGER  NULL,[users] VARCHAR(500)  NULL)");
 		// 下面个表是系统设置,提前设置ip地址
-		db.execSQL("CREATE TABLE [system] ([id] INTEGER  PRIMARY KEY AUTOINCREMENT NOT NULL,[localhost] VARCHAR(500) DEFAULT 'http://172.198.1.50' NULL)");
-		db.execSQL("insert into [system] (localhost) values('http://postdep.yw.wh-baidu.com')");
+		db.execSQL("CREATE TABLE [system] ([id] INTEGER  PRIMARY KEY AUTOINCREMENT NOT NULL,[localhost] VARCHAR(500) DEFAULT 'http://172.31.112.147' NULL)");
+		db.execSQL("insert into [system] (localhost) values('http://172.31.112.147:8080/Order_Test/')");
 	}
 
 	@Override

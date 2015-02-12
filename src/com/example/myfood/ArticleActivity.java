@@ -17,10 +17,10 @@ import android.widget.TextView;
 
 import com.example.adapter.ImageLoader;
 import com.example.utils.StreamTool;
-import com.example.utils.myapplication;
+import com.example.utils.MyApplication;
 
 public class ArticleActivity extends Activity {
-	private myapplication myapplication1;
+	private MyApplication myapplication1;
 	private Bundle Bundle1;
 	private TextView TextView1;
 	private TextView TextView2;
@@ -32,7 +32,7 @@ public class ArticleActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_article);
-		myapplication1 = (myapplication) getApplication();
+		myapplication1 = (MyApplication) getApplication();
 		myapplication1.getInstance().addActivity(this);
 		ImageLoader1 = new ImageLoader();
 		Bundle Bundle1 = this.getIntent().getExtras();
@@ -48,7 +48,6 @@ public class ArticleActivity extends Activity {
 	}
 
 	/**
-	 * 从网络读取
 	 * 
 	 * @param url
 	 * @return

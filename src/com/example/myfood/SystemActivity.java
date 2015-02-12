@@ -2,7 +2,7 @@ package com.example.myfood;
 
 import com.example.utils.SystemDBManager;
 import com.example.utils.UpdateManager;
-import com.example.utils.myapplication;
+import com.example.utils.MyApplication;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -14,13 +14,11 @@ import android.widget.Button;
 import android.widget.EditText;
 
 public class SystemActivity extends Activity {
-	private myapplication myapplication1;
+	private MyApplication myapplication1;
 	private UpdateManager mUpdateManager;
 	private SystemDBManager SystemDBManager1;
 	private Button Button1; // 推荐朋友
-	private Button Button2; // 意见反馈
 	private Button Button3; // 帮助
-	private Button Button4; // 检查更新
 	private Button Button5; // 关于
 	private Button Button6; // 修改hostlocal
 	private EditText EditText1;
@@ -28,13 +26,12 @@ public class SystemActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_system);
-		myapplication1 = (myapplication) getApplication();
+		myapplication1 = (MyApplication) getApplication();
 		myapplication1.getInstance().addActivity(this);
 		SystemDBManager1 = new SystemDBManager(this);
 		Button1 = (Button) findViewById(R.id.mbutton1);
-		Button2 = (Button) findViewById(R.id.mbutton2);
+//		Button2 = (Button) findViewById(R.id.mbutton2);
 		Button3 = (Button) findViewById(R.id.mbutton3);
-		Button4 = (Button) findViewById(R.id.mbutton4);
 		Button5 = (Button) findViewById(R.id.mbutton5);
 		Button6 = (Button) findViewById(R.id.mbutton6);
 		EditText1 = (EditText) findViewById(R.id.EditText1);
@@ -46,7 +43,7 @@ public class SystemActivity extends Activity {
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				Intent intent = new Intent();
-				intent.setClass(SystemActivity.this, LianxirenActivity.class);
+				intent.setClass(SystemActivity.this, ContactActivity.class);
 				startActivity(intent);
 			}
 		});
@@ -62,21 +59,6 @@ public class SystemActivity extends Activity {
 			}
 		});
 
-		Button4.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				// 这里来检测版本是否需要更新
-				try {
-					mUpdateManager = new UpdateManager(SystemActivity.this,
-							myapplication1.getlocalhost());
-					mUpdateManager.checkUpdateInfo();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
 
 		Button5.setOnClickListener(new OnClickListener() {
 

@@ -17,15 +17,15 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.model.goods;
-import com.example.utils.GoodsDBManager;
-import com.example.utils.dinglikeDBManager;
-import com.example.utils.myapplication;
+import com.example.model.Meal;
+import com.example.utils.MealDBManager;
+import com.example.utils.FavoriteDBManager;
+import com.example.utils.MyApplication;
 
 public class JindianActivity extends Activity {
-	private myapplication myapplication1;
-	private GoodsDBManager GoodsDBManager1;
-	private dinglikeDBManager dinglikeDBManager;
+	private MyApplication myapplication1;
+	private MealDBManager GoodsDBManager1;
+	private FavoriteDBManager dinglikeDBManager;
 	private TextView TextView1;
 	private TextView TextView2;
 	private TextView TextView3;
@@ -38,10 +38,10 @@ public class JindianActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_jindian);
-		myapplication1 = (myapplication) getApplication();
+		myapplication1 = (MyApplication) getApplication();
 		myapplication1.getInstance().addActivity(this);// 这个是为了退出时清除所有打开的activity
-		GoodsDBManager1 = new GoodsDBManager(this);
-		dinglikeDBManager = new dinglikeDBManager(this);
+		GoodsDBManager1 = new MealDBManager(this);
+		dinglikeDBManager = new FavoriteDBManager(this);
 		TextView1 = (TextView) findViewById(R.jindian.textView1);
 		TextView2 = (TextView) findViewById(R.jindian.textView2);
 		TextView3 = (TextView) findViewById(R.jindian.textView3);
@@ -55,17 +55,17 @@ public class JindianActivity extends Activity {
 		}
 		final int id = Integer.parseInt(Bundle1.getString("_id"));
 		TextView1.setText(Bundle1.getString("_title"));
-		TextView2.setText("价格：" + Bundle1.getString("_sell_price") + "元");
+		TextView2.setText("Price：$" + Bundle1.getString("_sell_price"));
 		TextView3.setText(Html.fromHtml(Bundle1.getString("_content"),
 				imgGetter, null));
 
 		if (GoodsDBManager1.queryid(id)) {
-			Button1.setText("购物车：" + GoodsDBManager1.totalcount());
+			Button1.setText("Cart：" + GoodsDBManager1.totalcount());
 		}
 
 		if (dinglikeDBManager.exists(Integer.parseInt(Bundle1.getString("_id")
 				.toString()))) {
-			Button2.setText("已喜欢");
+			Button2.setText("Favorited");
 			Button2.setEnabled(false);
 		}
 
@@ -78,7 +78,7 @@ public class JindianActivity extends Activity {
 					if (GoodsDBManager1.queryid(id)) {
 						Intent Intent1 = new Intent();
 						Intent1.setClass(JindianActivity.this,
-								DingActivity.class);
+								OrderActivity.class);
 						startActivity(Intent1);
 					} else {
 
@@ -104,9 +104,9 @@ public class JindianActivity extends Activity {
 						dinglikeDBManager.add(
 								Integer.parseInt(Bundle1.getString("_id")),
 								myapplication1.getusername());
-						Toast.makeText(JindianActivity.this, "收藏成功",
+						Toast.makeText(JindianActivity.this, "Added to favorites",
 								Toast.LENGTH_SHORT).show();
-						Button2.setText("已喜欢");
+						Button2.setText("Favorited");
 						Button2.setEnabled(false);
 					}
 				} else {
@@ -145,7 +145,7 @@ public class JindianActivity extends Activity {
 
 			try {
 
-				goods dt_goods = new goods();
+				Meal dt_goods = new Meal();
 				dt_goods.set_id(Integer.parseInt(Bundle1.getString("_id")
 						.toString()));
 				dt_goods.set_channel_id(Integer.parseInt(Bundle1.getString(
@@ -198,7 +198,7 @@ public class JindianActivity extends Activity {
 				dt_goods.set_user(myapplication1.getusername());
 				GoodsDBManager1.add(dt_goods);
 
-				Button1.setText("已点");
+				Button1.setText("Added");
 				Button1.setEnabled(false);
 
 			} catch (Exception e) {

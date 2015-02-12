@@ -1,6 +1,6 @@
 package com.example.myfood;
 
-import com.example.utils.myapplication;
+import com.example.utils.MyApplication;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -9,14 +9,14 @@ import android.view.Menu;
 import android.widget.TextView;
 
 public class HelpActivity extends Activity {
-	private myapplication myapplication1;
+	private MyApplication myapplication1;
 	private TextView textView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_help);
-		myapplication1 = (myapplication) getApplication();
+		myapplication1 = (MyApplication) getApplication();
 		myapplication1.getInstance().addActivity(this);
 		textView = (TextView) findViewById(R.help.textView1);
 		String textString = getResources().getString(R.string.help);

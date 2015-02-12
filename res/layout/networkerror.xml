@@ -24,7 +24,7 @@
       android:layout_centerHorizontal="true"
       android:layout_marginTop="14dp"
       android:gravity="center"
-      android:text="点击屏幕重试"
+      android:text="Touch Screen to Retry"
       android:textStyle="italic" />
 
     </RelativeLayout>

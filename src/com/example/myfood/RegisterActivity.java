@@ -20,11 +20,11 @@ import android.widget.Toast;
 
 import com.example.utils.DBhelper;
 import com.example.utils.UsersDBManager;
-import com.example.utils.myapplication;
+import com.example.utils.MyApplication;
 
 public class RegisterActivity extends Activity {
 	private UsersDBManager UsersDBManager1;
-	private myapplication myapplication1;
+	private MyApplication myapplication1;
 	private EditText EditText1;
 	private EditText EditText2;
 	private EditText EditText3;
@@ -39,7 +39,7 @@ public class RegisterActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_register);
 		UsersDBManager1 = new UsersDBManager(this);
-		myapplication1 = (myapplication) getApplication();
+		myapplication1 = (MyApplication) getApplication();
 		myapplication1.getInstance().addActivity(this);
 		if (myapplication1.ifpass()) {
 			Intent Intent1 = new Intent();
@@ -73,6 +73,10 @@ public class RegisterActivity extends Activity {
 			}
 			
 		});
+	}
+	
+	public String localhost() {
+		return myapplication1.getlocalhost();
 	}
 
 	public void check() {
@@ -114,10 +118,15 @@ public class RegisterActivity extends Activity {
 	private int registration(String userName, String password, String email) {
 		String message = "";
 		int res = -1;
-		String URL = DBhelper.localHostIp + "servlet/RegisterServlet?loginId="
-					 + userName + "&password="
-					 + password + "&email="
-					 + email + "&gender=M";
+//		String URL = DBhelper.localHostIp + "servlet/RegisterServlet?loginId="
+//					 + userName + "&password="
+//					 + password + "&email="
+//					 + email + "&gender=M";
+		
+		String URL = localhost() + "servlet/RegisterServlet?loginId="
+				 + userName + "&password="
+				 + password + "&email="
+				 + email + "&gender=M";
 		final HttpClient Client = new DefaultHttpClient();
 		String SetServerString = "";
 		HttpGet httpget = new HttpGet(URL);
@@ -149,10 +158,15 @@ public class RegisterActivity extends Activity {
 	public void login() {
 		int result = 0;
 		final HttpClient Client = new DefaultHttpClient();
-		String URL = DBhelper.localHostIp + "servlet/LoginServlet?loginid="
+		String URL = localhost() + "servlet/LoginServlet?loginid="
 				+ EditText1.getText().toString()
 				+ "&password="
 				+ EditText2.getText().toString();
+		
+//		String URL = DBhelper.localHostIp + "servlet/LoginServlet?loginid="
+//				+ EditText1.getText().toString()
+//				+ "&password="
+//				+ EditText2.getText().toString();
 
 		String SetServerString = "";
 		HttpGet httpget = new HttpGet(URL);
@@ -172,15 +186,14 @@ public class RegisterActivity extends Activity {
 		else
 			result = 0;
 
-		// if (result == 1) {
 		if (result==1) {
 			Toast.makeText(RegisterActivity.this,
 					EditText1.getText().toString(), Toast.LENGTH_SHORT).show();
 			UsersDBManager1.login(EditText1.getText().toString());
 			finish();
 		}
-		Toast.makeText(RegisterActivity.this, Integer.toString(result),
-				Toast.LENGTH_SHORT).show();
+//		Toast.makeText(RegisterActivity.this, Integer.toString(result),
+//				Toast.LENGTH_SHORT).show();
 		
 		
 	}
@@ -195,8 +208,8 @@ public class RegisterActivity extends Activity {
 	public boolean validate(String password1, String password2, String email) {
 		String message = new String();
 
-		if(!password1.equals(password2)){
-			message = "The two entered passwords do not match, please try again to enter!";
+		if(password1 == null) {
+			message = "Invalid password";
 			Toast.makeText(RegisterActivity.this, message.toString(), Toast.LENGTH_SHORT).show();
 			return false;
 		}
@@ -205,8 +218,8 @@ public class RegisterActivity extends Activity {
 			Toast.makeText(RegisterActivity.this, message.toString(), Toast.LENGTH_SHORT).show();
 			return false;
 		}		
-		else if(password1 == null) {
-			message = "Invalid password";
+		else if(!password1.equals(password2)){
+			message = "The two entered passwords do not match, please try again to enter!";
 			Toast.makeText(RegisterActivity.this, message.toString(), Toast.LENGTH_SHORT).show();
 			return false;
 		}		

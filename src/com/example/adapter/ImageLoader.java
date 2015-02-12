@@ -21,24 +21,22 @@ import android.graphics.BitmapFactory;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.os.Handler;
-import android.util.Log;
 import android.widget.BaseAdapter;
-import android.widget.SimpleAdapter;
-
+import android.widget.ImageView;
 import com.example.myfood.R;
 
 public class ImageLoader {
 	private static final String TAG = "ImageLoader";
-	private static final int MAX_CAPACITY = 1000;// 一级缓存的最大空间
-	private static final long DELAY_BEFORE_PURGE = 10 * 1000;// 定时清理缓存
+	private static final int MAX_CAPACITY = 1000;// Cache max Capacity
+	private static final long DELAY_BEFORE_PURGE = 300 * 1000;// Clear interval
 
-	// 0.75是加载因子为经验值，true则表示按照最近访问量的高低排序，false则表示按照插入顺序排序
-	private HashMap<String, Bitmap> mFirstLevelCache = new LinkedHashMap<String, Bitmap>(
+	// 0.75 is load factor，true is sorted by access order，false is insert order
+	public static HashMap<String, Bitmap> mFirstLevelCache = new LinkedHashMap<String, Bitmap>(
 			MAX_CAPACITY / 2, 0.75f, true) {
 		private static final long serialVersionUID = 1L;
 
 		protected boolean removeEldestEntry(Entry<String, Bitmap> eldest) {
-			if (size() > MAX_CAPACITY) {// 当超过一级缓存阈值的时候，将老的值从一级缓存搬到二级缓存
+			if (size() > MAX_CAPACITY) {// When size over capacity it will move to second level cache
 				mSecondLevelCache.put(eldest.getKey(),
 						new SoftReference<Bitmap>(eldest.getValue()));
 				return true;
@@ -46,11 +44,11 @@ public class ImageLoader {
 			return false;
 		};
 	};
-	// 二级缓存，采用的是软应用，只有在内存吃紧的时候软应用才会被回收，有效的避免了oom
-	private ConcurrentHashMap<String, SoftReference<Bitmap>> mSecondLevelCache = new ConcurrentHashMap<String, SoftReference<Bitmap>>(
+	// second level cache，using soft reference，it will be recycled by gc when memory exhausted
+	public static ConcurrentHashMap<String, SoftReference<Bitmap>> mSecondLevelCache = new ConcurrentHashMap<String, SoftReference<Bitmap>>(
 			MAX_CAPACITY / 2);
 
-	// 定时清理缓存
+	// Clear Cache
 	private Runnable mClearCache = new Runnable() {
 		@Override
 		public void run() {
@@ -59,14 +57,14 @@ public class ImageLoader {
 	};
 	private Handler mPurgeHandler = new Handler();
 
-	// 重置缓存清理的timer
+	// Reset clear timer
 	private void resetPurgeTimer() {
 		mPurgeHandler.removeCallbacks(mClearCache);
 		mPurgeHandler.postDelayed(mClearCache, DELAY_BEFORE_PURGE);
 	}
 
 	/**
-	 * 清理缓存
+	 * Clear Cache
 	 */
 	private void clear() {
 		mFirstLevelCache.clear();
@@ -74,23 +72,22 @@ public class ImageLoader {
 	}
 
 	/**
-	 * 返回缓存，如果没有则返回null
 	 * 
 	 * @param url
 	 * @return
 	 */
 	public Bitmap getBitmapFromCache(String url) {
 		Bitmap bitmap = null;
-		bitmap = getFromFirstLevelCache(url);// 从一级缓存中拿
+		bitmap = getFromFirstLevelCache(url);// look up first level cache
 		if (bitmap != null) {
 			return bitmap;
 		}
-		bitmap = getFromSecondLevelCache(url);// 从二级缓存中拿
+		bitmap = getFromSecondLevelCache(url);// look up second level cache
 		return bitmap;
 	}
 
 	/**
-	 * 从二级缓存中拿
+	 * Take from second level cache
 	 * 
 	 * @param url
 	 * @return
@@ -100,7 +97,7 @@ public class ImageLoader {
 		SoftReference<Bitmap> softReference = mSecondLevelCache.get(url);
 		if (softReference != null) {
 			bitmap = softReference.get();
-			if (bitmap == null) {// 由于内存吃紧，软引用已经被gc回收了
+			if (bitmap == null) {// Due to memory exhausted, the soft reference is recycled by the garbage collector
 				mSecondLevelCache.remove(url);
 			}
 		}
@@ -108,7 +105,7 @@ public class ImageLoader {
 	}
 
 	/**
-	 * 从一级缓存中拿
+	 * Take from first level cache
 	 * 
 	 * @param url
 	 * @return
@@ -117,113 +114,126 @@ public class ImageLoader {
 		Bitmap bitmap = null;
 		synchronized (mFirstLevelCache) {
 			bitmap = mFirstLevelCache.get(url);
-			if (bitmap != null) {// 将最近访问的元素放到链的头部，提高下一次访问该元素的检索速度（LRU算法）
-				mFirstLevelCache.remove(url);
-				mFirstLevelCache.put(url, bitmap);
+			if (bitmap != null) {
+//				mFirstLevelCache.remove(url);
+//				mFirstLevelCache.put(url, bitmap);
 			}
 		}
 		return bitmap;
 	}
 
 	/**
-	 * 加载图片，如果缓存中有就直接从缓存中拿，缓存中没有就下载
+	 * load image, look up cache first, if miss the download.
 	 * 
 	 * @param url
 	 * @param adapter
 	 * @param holder
 	 */
 	public void articleloadImage(String url, BaseAdapter adapter,
-			articleAdapter.ViewHolder holder) {
+			ArticleAdapter.ViewHolder holder) {
 		resetPurgeTimer();
-		Bitmap bitmap = getBitmapFromCache(url);// 从缓存中读取
+		Bitmap bitmap = getBitmapFromCache(url);// read from cache
 		if (bitmap == null) {
-			holder.mImageView.setImageResource(R.drawable.ic_launcher);// 缓存没有设为默认图片
+			holder.mImageView.setImageResource(R.drawable.ic_launcher);// set to default
 			ImageLoadTask imageLoadTask = new ImageLoadTask();
 			imageLoadTask.execute(url, adapter, holder);
 		} else {
-			holder.mImageView.setImageBitmap(bitmap);// 设为缓存图片
+			holder.mImageView.setImageBitmap(bitmap);// set to cache image
 		}
 
 	}
 
 	/**
-	 * 加载图片，如果缓存中有就直接从缓存中拿，缓存中没有就下载
 	 * 
+	 * load image, look up cache first, if miss the download.
 	 * @param url
 	 * @param adapter
 	 * @param holder
 	 */
 	public void goodsloadImage(String url, BaseAdapter adapter,
-			goodsAdapter.goodsViewHolder holder) {
+			MenuAdapter.goodsViewHolder holder) {
 		resetPurgeTimer();
-		Bitmap bitmap = getBitmapFromCache(url);// 从缓存中读取
+		Bitmap bitmap = getBitmapFromCache(url);// read from cache
 		if (bitmap == null) {
-			holder.mImageView.setImageResource(R.drawable.ic_launcher);// 缓存没有设为默认图片
+			holder.mImageView.setImageResource(R.drawable.ic_launcher);// set to default
 			ImageLoadTask imageLoadTask = new ImageLoadTask();
 			imageLoadTask.execute(url, adapter, holder);
 		} else {
-			holder.mImageView.setImageBitmap(bitmap);// 设为缓存图片
+			holder.mImageView.setImageBitmap(bitmap);// set to cache image
 		}
 
 	}
 
 	/**
-	 * 普通图片加载
 	 * 
 	 * @param url
 	 * @return
 	 */
 	public Bitmap bloadImage(String url) {
 		// resetPurgeTimer();
-		Bitmap bitmap = loadImageFromInternet(url);// 获取网络图片
+		Bitmap bitmap = loadImageFromInternet(url);// download from Internet
 		return bitmap;
 
 	}
 
 	/**
-	 * 加载图片，如果缓存中有就直接从缓存中拿，缓存中没有就下载
+	 * load image, look up cache first, if miss the download.
 	 * 
 	 * @param url
 	 * @param adapter
 	 * @param holder
 	 */
-	public void dingloadImage(String url, SimpleAdapter adapter,
-			dingAdapter.dingViewHolder holder) {
+//	public void dingloadImage(String url, SimpleAdapter adapter,
+//			dingAdapter.dingViewHolder holder) {
+//		resetPurgeTimer();
+//		Bitmap bitmap = getBitmapFromCache(url);// read from cache
+//		if (bitmap == null) {
+//			holder.mImageView.setImageResource(R.drawable.ic_launcher);// set to default
+//			ImageLoadTask imageLoadTask = new ImageLoadTask();
+//			imageLoadTask.execute(url, adapter, holder);
+//		} else {
+//			holder.mImageView.setImageBitmap(bitmap);// set to cache image
+//		}
+//
+//	}
+	
+	public void dingloadImage(String url, OrderAdapter dingAdapter,
+			ImageView mImageView) {
 		resetPurgeTimer();
 		Bitmap bitmap = getBitmapFromCache(url);// 从缓存中读取
 		if (bitmap == null) {
-			holder.mImageView.setImageResource(R.drawable.ic_launcher);// 缓存没有设为默认图片
+			mImageView.setImageResource(R.drawable.ic_launcher);// 缓存没有设为默认图片
 			ImageLoadTask imageLoadTask = new ImageLoadTask();
-			imageLoadTask.execute(url, adapter, holder);
+			imageLoadTask.execute(url, dingAdapter, mImageView);
 		} else {
-			holder.mImageView.setImageBitmap(bitmap);// 设为缓存图片
+			mImageView.setImageBitmap(bitmap);// 设为缓存图片
 		}
 
 	}
 
 	/**
-	 * 加载图片，如果缓存中有就直接从缓存中拿，缓存中没有就下载
+	 * load image, look up cache first, if miss the download.
 	 * 
 	 * @param url
 	 * @param adapter
 	 * @param holder
 	 */
 	public void categoryloadImage(String url, BaseAdapter adapter,
-			categoryAdapter.categoryViewHolder holder) {
+			RestaurantAdapter.categoryViewHolder holder) {
 		resetPurgeTimer();
-		Bitmap bitmap = getBitmapFromCache(url);// 从缓存中读取
+		Bitmap bitmap = getBitmapFromCache(url);// read from cache
 		if (bitmap == null) {
-			holder.mImageView.setImageResource(R.drawable.ic_launcher);// 缓存没有设为默认图片
+			holder.mImageView.setImageResource(R.drawable.ic_launcher);// set to default
 			ImageLoadTask imageLoadTask = new ImageLoadTask();
 			imageLoadTask.execute(url, adapter, holder);
 		} else {
-			holder.mImageView.setImageBitmap(bitmap);// 设为缓存图片
+			holder.mImageView.setImageBitmap(bitmap);// set to cache image
 		}
 
 	}
 
 	/**
-	 * 放入缓存
+	 * put into cache
 	 * 
 	 * @param url
 	 * @param value
@@ -245,7 +255,7 @@ public class ImageLoader {
 		protected Bitmap doInBackground(Object... params) {
 			url = (String) params[0];
 			adapter = (BaseAdapter) params[1];
-			Bitmap drawable = loadImageFromInternet(url);// 获取网络图片
+			Bitmap drawable = loadImageFromInternet(url);// download from Internet
 			return drawable;
 		}
 
@@ -254,8 +264,8 @@ public class ImageLoader {
 			if (result == null) {
 				return;
 			}
-			addImage2Cache(url, result);// 放入缓存
-			adapter.notifyDataSetChanged();// 触发getView方法执行，这个时候getView实际上会拿到刚刚缓存好的图片
+		addImage2Cache(url, result);// put into cache
+			adapter.notifyDataSetChanged();
 		}
 	}
 
@@ -273,7 +283,6 @@ public class ImageLoader {
 			response = client.execute(httpGet);
 			int stateCode = response.getStatusLine().getStatusCode();
 			if (stateCode != HttpStatus.SC_OK) {
-				Log.d(TAG, "func [loadImage] stateCode=" + stateCode);
 				return bitmap;
 			}
 			HttpEntity entity = response.getEntity();

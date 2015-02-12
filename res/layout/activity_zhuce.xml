@@ -14,7 +14,7 @@
             android:id="@+zhuce/textView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="用 户 名" />
+            android:text="User Name" />
 
         <EditText
             android:id="@+zhuce/editText1"
@@ -31,7 +31,7 @@
             android:id="@+zhuce/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="密     码" />
+            android:text="Password" />
 
         <EditText
             android:id="@+zhuce/editText2"
@@ -50,7 +50,7 @@
             android:id="@+zhuce/textView3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="确认密码" />
+            android:text="Confirm Password" />
 
         <EditText
             android:id="@+zhuce/editText3"
@@ -69,7 +69,7 @@
             android:id="@+zhuce/textView4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="邮     箱" />
+            android:text="Email" />
 
         <EditText
             android:id="@+zhuce/editText4"
@@ -89,7 +89,7 @@
             android:layout_height="38dp"
             android:layout_weight="1"
             android:background="@drawable/buttonstyle"
-            android:text="注       册" />
+            android:text="Register" />
 
     </LinearLayout>
 

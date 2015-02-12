@@ -9,9 +9,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:text="查看更多..."
         android:padding="16dp"
-        />
+        android:text="Load More...." />
 
     <LinearLayout
         android:id="@+id/load_id"

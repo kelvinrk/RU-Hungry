@@ -12,7 +12,7 @@
             android:id="@+item_dmanager_view/textView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="客户信息：" />
+            android:text="Customer Name: " />
     </LinearLayout>
 
     <LinearLayout
@@ -24,20 +24,10 @@
             android:id="@+item_dmanager_view/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="联系方式：" />
+            android:text="Tel: " />
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dp" >
 
-        <TextView
-            android:id="@+item_dmanager_view/textView3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="用餐人数：" />
-    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -48,7 +38,7 @@
             android:id="@+item_dmanager_view/textView4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="就餐地点：" />
+            android:text="Restaurant: " />
     </LinearLayout>
 
     <LinearLayout
@@ -60,7 +50,7 @@
             android:id="@+item_dmanager_view/textView5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="到店时间：" />
+            android:text="Expected Time: " />
     </LinearLayout>
 
     <LinearLayout
@@ -72,7 +62,7 @@
             android:id="@+item_dmanager_view/textView6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="共点菜数：" />
+            android:text="Total Meals: " />
     </LinearLayout>
 
     <LinearLayout
@@ -84,7 +74,7 @@
             android:id="@+item_dmanager_view/textView7"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="总计金额：" />
+            android:text="Total Amount: " />
     </LinearLayout>
 
     <LinearLayout
@@ -96,7 +86,7 @@
             android:id="@+item_dmanager_view/textView8"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="特殊要求：" />
+            android:text="Special Requirements: " />
     </LinearLayout>
 
 </LinearLayout>
